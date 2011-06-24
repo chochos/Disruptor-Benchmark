@@ -1,0 +1,3 @@
+This is a very simple project that aims to test the performance of the Disruptor library, comparing it against the java.util.concurrent queues.
+
+Disruptor: http://code.google.com/p/disruptor

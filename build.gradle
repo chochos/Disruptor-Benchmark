@@ -1,0 +1,11 @@
+apply plugin:'java'
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	flatDir name:'lib', dirs:'lib'
+}
+
+dependencies {
+	testCompile 'junit:junit:4.8.2'
+}
