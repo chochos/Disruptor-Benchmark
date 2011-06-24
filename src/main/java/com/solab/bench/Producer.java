@@ -1,3 +1,4 @@
+package com.solab.bench;
 /** A very simple abstract producer. */
 public abstract class Producer {
 
@@ -12,13 +13,15 @@ public abstract class Producer {
 		cuantos = value;
 	}
 
-	public abstract queueItem(Item item);
+	protected abstract void queueItem(Item item);
 
 	public void benchmarkQueue() {
 		t0 = System.currentTimeMillis();
 		for (int i = 0; i < cuantos; i++) {
-			queueItem();
+			queueItem(new Item());
+			//try { Thread.sleep(10);} catch(InterruptedException ex){}
 		}
+		queueItem(new LastItem());
 		t1 = System.currentTimeMillis();
 	}
 
