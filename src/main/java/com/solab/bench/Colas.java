@@ -11,6 +11,7 @@ public abstract class Colas {
 	public TestResult runTest(int howMany) {
 		Consumer cons = createConsumer();
 		Producer prod = createProducer(howMany);
+		prod.setCuantos(howMany);
 		Thread t = new Thread(cons, "Consumer");
 		t.start();
 		prod.benchmarkQueue();

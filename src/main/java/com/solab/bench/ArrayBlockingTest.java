@@ -19,14 +19,12 @@ public class ArrayBlockingTest extends Colas {
 	}
 
 	protected Producer createProducer(int count) {
-		queue = new ArrayBlockingQueue<Item>(Math.min(32, count / 10));
-		Producer prod = new Producer(){
+		queue = new ArrayBlockingQueue<Item>(Math.max(32, count / 10));
+		return new Producer(){
 			protected void queueItem(Item item) {
 				queue.add(item);
 			}
 		};
-		prod.setCuantos(count);
-		return prod;
 	}
 
 }

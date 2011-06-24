@@ -7,12 +7,13 @@ public class TestQueues {
 
 	@Before
 	public void warmup() {
+		Item.setDelay(600);
 		Colas x = new ArrayBlockingTest();
-		x.runTest(10);
+		x.runTest(32);
 		x = new LinkedBlockingTest();
-		x.runTest(10);
+		x.runTest(32);
 		x = new DisruptorTest();
-		x.runTest(10);
+		x.runTest(32);
 	}
 
 	@Test

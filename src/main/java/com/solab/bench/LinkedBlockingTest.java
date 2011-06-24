@@ -19,13 +19,11 @@ public class LinkedBlockingTest extends Colas {
 	}
 
 	protected Producer createProducer(int count) {
-		Producer prod = new Producer(){
+		return new Producer(){
 			protected void queueItem(Item item) {
 				queue.add(item);
 			}
 		};
-		prod.setCuantos(count);
-		return prod;
 	}
 
 }
