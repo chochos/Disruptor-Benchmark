@@ -3,29 +3,30 @@ package com.solab.bench.ring;
 import com.lmax.disruptor.*;
 import com.solab.bench.*;
 
-public class ItemHandler extends BenchConsumer implements BatchHandler<ItemEntry> {
+public class ItemHandler extends BenchConsumer implements EventHandler<ItemEntry> {
 
-	private final Object lock = new Object();
+	private Item item;
+	private Object lock = new Object();
 
-	protected Item consumeItem() {
-		return null;
+	public Item consumeItem() {
+		return item;
 	}
 
-	public void onAvailable(final ItemEntry entry) throws Exception {
-		if (t0 == 0)
-			t0 = System.currentTimeMillis();
-		else if (entry.getItem().getDate().getTime() == 0) {
-			t1 = System.currentTimeMillis();
-			synchronized(lock) { lock.notify(); }
+	public void onEvent(final ItemEntry entry, final long sequence, final boolean endOfBatch) throws Exception {
+		item = entry.getItem();
+		if (item.getDate().getTime() == 0) {
+			synchronized (lock) { lock.notify();} 
 		}
 	}
 
 	public void run() {
-		synchronized(lock) {
-			try { lock.wait(); } catch (InterruptedException ex){}
+		t0 = System.currentTimeMillis();
+		try {
+			synchronized(lock) { lock.wait(); }
+		} catch (InterruptedException ex) {
+			System.out.println("OUCH interrupted!");
 		}
+		t1 = System.currentTimeMillis();
 	}
 
-	public void onCompletion() {}
-	public void onEndOfBatch() {}
 }
