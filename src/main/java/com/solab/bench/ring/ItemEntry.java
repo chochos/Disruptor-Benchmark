@@ -1,9 +1,9 @@
 package com.solab.bench.ring;
 
-import com.lmax.disruptor.*;
+import com.lmax.disruptor.EventFactory;
 import com.solab.bench.Item;
 
-public class ItemEntry extends AbstractEntry {
+public final class ItemEntry {
 
 	private Item item;
 
@@ -13,4 +13,11 @@ public class ItemEntry extends AbstractEntry {
 	public Item getItem() {
 		return item;
 	}
+
+	public static final EventFactory<ItemEntry> EVENT_FACTORY = new EventFactory<ItemEntry>(){
+
+		public ItemEntry newInstance() { return new ItemEntry(); }
+
+	};
+
 }
