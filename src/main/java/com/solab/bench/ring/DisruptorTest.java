@@ -5,33 +5,43 @@ import com.solab.bench.*;
 
 public class DisruptorTest extends Colas {
 
-	private RingBuffer rb;
-	private BatchConsumer<ItemEntry> cons;
-	private ProducerBarrier<ItemEntry> producerBarrier;
-	private ItemHandler handler = new ItemHandler();
+	private RingBuffer<ItemEntry> rb;
+	private BatchEventProcessor<ItemEntry> cons;
+	private final ItemHandler handler = new ItemHandler();
 
 	protected BenchConsumer createConsumer() {
 		return handler;
 	}
 
+	public int pow2(int size) {
+		int mask = 0xff;
+		for (int i = 0; i < 4; i++) {
+			if ((size & mask) > 0) size|=mask;
+			mask = mask << 8;
+		}
+		return size+1;
+	}
+
 	protected Producer createProducer(int count) {
-		EntryFactory<ItemEntry> ef = new EntryFactory<ItemEntry>(){
-			public ItemEntry create() { return new ItemEntry(); }
-		};
-		rb = new RingBuffer(ef, Math.max(32, count/10), ClaimStrategy.Option.SINGLE_THREADED,
+		int size = pow2(Math.max(32, count/10));
+		System.out.printf("Init ring size %d%n", size);
+		rb = new RingBuffer<ItemEntry>(ItemEntry.EVENT_FACTORY, size, ClaimStrategy.Option.SINGLE_THREADED,
 			WaitStrategy.Option.YIELDING);
-		ConsumerBarrier<ItemEntry> consumerBarrier = rb.createConsumerBarrier();
-		cons = new BatchConsumer<ItemEntry>(consumerBarrier, handler);
-		producerBarrier = rb.createProducerBarrier(cons);
+		SequenceBarrier consumerBarrier = rb.newBarrier();
+		cons = new BatchEventProcessor<ItemEntry>(rb, consumerBarrier, handler);
+		rb.setGatingSequences(cons.getSequence());
 		new Thread(cons, "batchcons").start();
-		Producer prod = new Producer(){
-			protected void queueItem(Item item) {
-				ItemEntry entry = producerBarrier.nextEntry();
-				entry.setItem(item);
-				producerBarrier.commit(entry);
-			}
-		};
+		Producer prod = new RingProducer();
 		return prod;
+	}
+
+	private class RingProducer extends Producer {
+		protected void queueItem(Item item) {
+			long seq = rb.next();
+			ItemEntry entry = rb.get(seq);
+			entry.setItem(item);
+			rb.publish(seq);
+		}
 	}
 
 }
