@@ -5,38 +5,44 @@ import org.junit.*;
 public class TestQueues {
 
 	private int count = 50000;
+	private int testCount = 10;
 
 	@BeforeClass
 	public static void warmup() {
 		Item.setDelay(900);
-		Colas x = new com.solab.bench.queue.ArrayBlockingTest();
-		x.runTest(32);
-		x = new com.solab.bench.queue.LinkedBlockingTest();
-		x.runTest(32);
-		x = new com.solab.bench.ring.DisruptorTest();
-		x.runTest(32);
 	}
 
 	@Test
-	public void testArrayQueue() {
-		printResult(new com.solab.bench.queue.ArrayBlockingTest());
+	public void testArrayQueue() throws InterruptedException {
+		Colas x = new com.solab.bench.queue.ArrayBlockingTest(count);
+		x.runTest();
+		printResult(x);
 	}
 
 	@Test
-	public void testLinkedQueue() {
-		printResult(new com.solab.bench.queue.LinkedBlockingTest());
+	public void testLinkedQueue() throws InterruptedException {
+		Colas x = new com.solab.bench.queue.LinkedBlockingTest(count);
+		x.runTest();
+		printResult(x);
 	}
 
 	@Test
-	public void testDisruptor() {
-		printResult(new com.solab.bench.ring.DisruptorTest());
+	public void testDisruptor() throws InterruptedException {
+		Colas x = new com.solab.bench.ring.DisruptorTest(count);
+		x.runTest();
+		printResult(x);
 	}
 
-	public void printResult(Colas queueTest) {
-		System.out.printf("Testing %s%n", queueTest.getClass().getName());
-		TestResult tr = queueTest.runTest(count);
-		System.out.printf("Consumer ran in %8d milliseconds%n", tr.getConsumerRunningTime());
-		System.out.printf("Producer ran in %8d milliseconds%n", tr.getProducerRunningTime());
+	public void printResult(Colas queueTest) throws InterruptedException {
+		System.out.printf("Testing %s %d times with %d items%n", queueTest.getClass().getSimpleName(), testCount, count);
+		TestResult tr[] = new TestResult[testCount];
+		for (int i = 0; i < testCount; i++) {
+			tr[i] = queueTest.runTest();
+		}
+		TestResult avg = TestResult.average(tr);
+		System.out.printf("Consumer ran in %8d milliseconds%n", avg.getConsumerRunningTime());
+		System.out.printf("Producer ran in %8d milliseconds%n", avg.getProducerRunningTime());
+		System.out.printf("SUM(index) == %d%n", avg.getIndexSum());
 	}
 
 }
