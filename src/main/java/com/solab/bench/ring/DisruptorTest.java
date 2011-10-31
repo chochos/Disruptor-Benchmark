@@ -5,9 +5,28 @@ import com.solab.bench.*;
 
 public class DisruptorTest extends Colas {
 
-	private RingBuffer<ItemEntry> rb;
-	private BatchEventProcessor<ItemEntry> cons;
+	private final RingBuffer<ItemEntry> rb;
 	private final ItemHandler handler = new ItemHandler();
+	private final Producer prod = new Producer(){
+		protected void queueItem(Item item) {
+			long seq = rb.next();
+			ItemEntry entry = rb.get(seq);
+			entry.setItem(item);
+			rb.publish(seq);
+		}
+	};
+
+	public DisruptorTest(int count) {
+		super(count);
+		int size = pow2(Math.max(32, count/10));
+		System.out.printf("Init ring size %d%n", size);
+		rb = new RingBuffer<ItemEntry>(ItemEntry.EVENT_FACTORY, size, ClaimStrategy.Option.SINGLE_THREADED,
+			WaitStrategy.Option.YIELDING);
+		SequenceBarrier consumerBarrier = rb.newBarrier();
+		BatchEventProcessor<ItemEntry> cons = new BatchEventProcessor<ItemEntry>(rb, consumerBarrier, handler);
+		rb.setGatingSequences(cons.getSequence());
+		new Thread(cons, "batchcons").start();
+	}
 
 	protected BenchConsumer createConsumer() {
 		return handler;
@@ -23,25 +42,7 @@ public class DisruptorTest extends Colas {
 	}
 
 	protected Producer createProducer(int count) {
-		int size = pow2(Math.max(32, count/10));
-		System.out.printf("Init ring size %d%n", size);
-		rb = new RingBuffer<ItemEntry>(ItemEntry.EVENT_FACTORY, size, ClaimStrategy.Option.SINGLE_THREADED,
-			WaitStrategy.Option.YIELDING);
-		SequenceBarrier consumerBarrier = rb.newBarrier();
-		cons = new BatchEventProcessor<ItemEntry>(rb, consumerBarrier, handler);
-		rb.setGatingSequences(cons.getSequence());
-		new Thread(cons, "batchcons").start();
-		Producer prod = new RingProducer();
 		return prod;
-	}
-
-	private class RingProducer extends Producer {
-		protected void queueItem(Item item) {
-			long seq = rb.next();
-			ItemEntry entry = rb.get(seq);
-			entry.setItem(item);
-			rb.publish(seq);
-		}
 	}
 
 }
