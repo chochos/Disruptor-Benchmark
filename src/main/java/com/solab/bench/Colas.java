@@ -5,20 +5,24 @@ package com.solab.bench;
  */
 public abstract class Colas {
 
+	private final int count;
+
+	public Colas(int itemCount) {
+		count = itemCount;
+	}
+
 	protected abstract Producer createProducer(int count);
 	protected abstract BenchConsumer createConsumer();
 
-	public TestResult runTest(int howMany) {
+	public TestResult runTest() throws InterruptedException {
 		BenchConsumer cons = createConsumer();
-		Producer prod = createProducer(howMany);
-		prod.setCuantos(howMany);
+		Producer prod = createProducer(count);
+		prod.setCuantos(count);
 		Thread t = new Thread(cons, "Consumer");
 		t.start();
 		prod.benchmarkQueue();
-		while (t.isAlive()) {
-			try { Thread.sleep(1000); } catch (InterruptedException ex){ /*don't try this at home*/ }
-		}
-		return new TestResult(cons.getStartTime(), cons.getFinishTime(), prod.getStartTime(), prod.getFinishTime());
+		t.join();
+		return new TestResult(cons.getStartTime(), cons.getFinishTime(), prod.getStartTime(), prod.getFinishTime(), cons.getSum());
 	}
 
 }

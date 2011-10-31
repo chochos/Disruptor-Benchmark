@@ -16,12 +16,13 @@ public abstract class Producer {
 	protected abstract void queueItem(Item item);
 
 	public void benchmarkQueue() {
+		Item.initIndex();
 		t0 = System.currentTimeMillis();
 		for (int i = 0; i < cuantos; i++) {
 			queueItem(new Item());
 			//try { Thread.sleep(10);} catch(InterruptedException ex){}
 		}
-		queueItem(new LastItem());
+		queueItem(LastItem.instance);
 		t1 = System.currentTimeMillis();
 	}
 
