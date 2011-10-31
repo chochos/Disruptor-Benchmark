@@ -5,18 +5,8 @@ import com.solab.bench.*;
 
 public class ArrayBlockingTest extends Colas {
 
-	private ArrayBlockingQueue<Item> queue;
-
-	protected BenchConsumer createConsumer() {
-		return new ArrayConsumer();
-	}
-
-	protected Producer createProducer(int count) {
-		queue = new ArrayBlockingQueue<Item>(Math.max(32, count / 10));
-		return new ArrayProducer();
-	}
-
-	private class ArrayConsumer extends BenchConsumer {
+	private final ArrayBlockingQueue<Item> queue;
+	private final BenchConsumer consumer = new BenchConsumer() {
 		protected Item consumeItem() {
 			try {
 				return queue.take();
@@ -24,12 +14,25 @@ public class ArrayBlockingTest extends Colas {
 				throw new IllegalStateException(ex);
 			}
 		}
-	}
-
-	private class ArrayProducer extends Producer {
+	};
+	private final Producer producer = new Producer() {
 		protected void queueItem(Item item) {
 			queue.add(item);
 		}
+	};
+
+	public ArrayBlockingTest(int count) {
+		super(count);
+		queue = new ArrayBlockingQueue<Item>(Math.max(32, count+1));
+	}
+
+	protected BenchConsumer createConsumer() {
+		return consumer;
+	}
+
+	protected Producer createProducer(int count) {
+		queue.clear();
+		return producer;
 	}
 
 }
