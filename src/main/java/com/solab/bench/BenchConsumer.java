@@ -3,10 +3,10 @@ package com.solab.bench;
  *
  * @author Enrique Zamudio
  */
-public abstract class Consumer implements Runnable {
+public abstract class BenchConsumer implements Runnable {
 
-	private long t0;
-	private long t1;
+	protected long t0;
+	protected long t1;
 
 	protected abstract Item consumeItem();
 

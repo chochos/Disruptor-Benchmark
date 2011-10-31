@@ -1,6 +1,7 @@
-package com.solab.bench;
+package com.solab.bench.ring;
 
 import com.lmax.disruptor.*;
+import com.solab.bench.Item;
 
 public class ItemEntry extends AbstractEntry {
 

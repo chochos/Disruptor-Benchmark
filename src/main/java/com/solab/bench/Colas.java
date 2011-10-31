@@ -6,10 +6,10 @@ package com.solab.bench;
 public abstract class Colas {
 
 	protected abstract Producer createProducer(int count);
-	protected abstract Consumer createConsumer();
+	protected abstract BenchConsumer createConsumer();
 
 	public TestResult runTest(int howMany) {
-		Consumer cons = createConsumer();
+		BenchConsumer cons = createConsumer();
 		Producer prod = createProducer(howMany);
 		prod.setCuantos(howMany);
 		Thread t = new Thread(cons, "Consumer");

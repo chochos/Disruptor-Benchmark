@@ -1,28 +1,28 @@
-package com.solab.bench;
+package com.solab.bench.ring;
 
 import com.lmax.disruptor.*;
+import com.solab.bench.*;
 
-public class ItemHandler extends Consumer implements BatchHandler<ItemEntry> {
+public class ItemHandler extends BenchConsumer implements BatchHandler<ItemEntry> {
 
-	private Object lock = new Object();
-	private Item item;
+	private final Object lock = new Object();
 
 	protected Item consumeItem() {
-		Item _item = item;
-		if (_item == null) {
-			synchronized(lock) {
-				try { lock.wait();} catch (InterruptedException ex){}
-				_item = item;
-				item = null;
-			}
-		}
-		return _item;
+		return null;
 	}
 
 	public void onAvailable(final ItemEntry entry) throws Exception {
+		if (t0 == 0)
+			t0 = System.currentTimeMillis();
+		else if (entry.getItem().getDate().getTime() == 0) {
+			t1 = System.currentTimeMillis();
+			synchronized(lock) { lock.notify(); }
+		}
+	}
+
+	public void run() {
 		synchronized(lock) {
-			item = entry.getItem();
-			lock.notify();
+			try { lock.wait(); } catch (InterruptedException ex){}
 		}
 	}
 

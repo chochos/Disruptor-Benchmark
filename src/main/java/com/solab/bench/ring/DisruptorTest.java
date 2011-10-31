@@ -1,6 +1,7 @@
-package com.solab.bench;
+package com.solab.bench.ring;
 
 import com.lmax.disruptor.*;
+import com.solab.bench.*;
 
 public class DisruptorTest extends Colas {
 
@@ -9,7 +10,7 @@ public class DisruptorTest extends Colas {
 	private ProducerBarrier<ItemEntry> producerBarrier;
 	private ItemHandler handler = new ItemHandler();
 
-	protected Consumer createConsumer() {
+	protected BenchConsumer createConsumer() {
 		return handler;
 	}
 

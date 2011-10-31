@@ -9,5 +9,5 @@ repositories {
 
 dependencies {
 	compile 'lib:disruptor:1.0.4'
-	testCompile 'junit:junit:4.8.2'
+	testCompile 'junit:junit:4.10'
 }
