@@ -10,11 +10,12 @@ public class Item {
 	private java.util.Date date = new java.util.Date();
 
 	private static int delay = 500;
-	private static final AtomicInteger INDEX = new AtomicInteger();
+	//private static final AtomicInteger INDEX = new AtomicInteger();
+	private static int INDEX = 0;
 	private int index;
 
 	public static void initIndex() {
-		INDEX.set(0);
+		INDEX=0;//.set(0);
 	}
 
 	public static void setDelay(int value) {
@@ -22,7 +23,7 @@ public class Item {
 	}
 
 	public Item() {
-		index = INDEX.incrementAndGet();
+		index = ++INDEX;//.incrementAndGet();
 		//Do something computationally expensive, to keep the producer busy
 		/*for (int i = 2; i < delay; i++) {
 			for (int j = 1; j < i; j++) {
