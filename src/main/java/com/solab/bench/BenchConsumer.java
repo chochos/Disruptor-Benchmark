@@ -16,6 +16,7 @@ public abstract class BenchConsumer implements Runnable {
 	public long getSum() { return sum; }
 
 	public void run() {
+		sum=0;
 		boolean cont = true;
 		t0 = System.currentTimeMillis();
 		while (cont) {
