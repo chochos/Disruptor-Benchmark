@@ -18,7 +18,7 @@ public class DisruptorTest extends Colas {
 
 	public DisruptorTest(int count) {
 		super(count);
-		int size = pow2(Math.max(32, count/10));
+		int size = (int)Math.pow(2,32-Integer.numberOfLeadingZeros(Math.max(32, count)));
 		System.out.printf("Init ring size %d%n", size);
 		rb = new RingBuffer<ItemEntry>(ItemEntry.EVENT_FACTORY, size, ClaimStrategy.Option.SINGLE_THREADED,
 			WaitStrategy.Option.YIELDING);
@@ -30,15 +30,6 @@ public class DisruptorTest extends Colas {
 
 	protected BenchConsumer createConsumer() {
 		return handler;
-	}
-
-	public int pow2(int size) {
-		int mask = 0xff;
-		for (int i = 0; i < 4; i++) {
-			if ((size & mask) > 0) size|=mask;
-			mask = mask << 8;
-		}
-		return size+1;
 	}
 
 	protected Producer createProducer(int count) {
