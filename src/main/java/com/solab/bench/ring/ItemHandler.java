@@ -1,12 +1,13 @@
 package com.solab.bench.ring;
 
+import java.util.concurrent.CountDownLatch;
 import com.lmax.disruptor.*;
 import com.solab.bench.*;
 
 public class ItemHandler extends BenchConsumer implements EventHandler<ItemEntry> {
 
 	private Item item;
-	private Object lock = new Object();
+	private CountDownLatch latch;
 
 	public Item consumeItem() {
 		return item;
@@ -16,15 +17,16 @@ public class ItemHandler extends BenchConsumer implements EventHandler<ItemEntry
 		item = entry.getItem();
 		sum += item.getIndex();
 		if (item == LastItem.instance) {
-			synchronized (lock) { lock.notifyAll();} 
+			latch.countDown();
 		}
 	}
 
 	public void run() {
 		sum = 0;
+		latch = new CountDownLatch(1);
 		t0 = System.currentTimeMillis();
 		try {
-			synchronized(lock) { lock.wait(); }
+			latch.await();
 		} catch (InterruptedException ex) {
 			System.out.println("OUCH interrupted!");
 		}
