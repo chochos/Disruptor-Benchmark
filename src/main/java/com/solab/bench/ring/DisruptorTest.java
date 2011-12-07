@@ -20,8 +20,8 @@ public class DisruptorTest extends Colas {
 		super(count);
 		int size = (int)Math.pow(2,32-Integer.numberOfLeadingZeros(Math.max(32, count)));
 		System.out.printf("Init ring size %d%n", size);
-		rb = new RingBuffer<ItemEntry>(ItemEntry.EVENT_FACTORY, size, ClaimStrategy.Option.SINGLE_THREADED,
-			WaitStrategy.Option.YIELDING);
+		rb = new RingBuffer<ItemEntry>(ItemEntry.EVENT_FACTORY, new SingleThreadedClaimStrategy(size),
+			new YieldingWaitStrategy());
 		SequenceBarrier consumerBarrier = rb.newBarrier();
 		BatchEventProcessor<ItemEntry> cons = new BatchEventProcessor<ItemEntry>(rb, consumerBarrier, handler);
 		rb.setGatingSequences(cons.getSequence());

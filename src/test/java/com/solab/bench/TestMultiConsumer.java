@@ -8,8 +8,8 @@ import com.solab.bench.ring.ItemEntry;
 
 public class TestMultiConsumer {
 
-	private final Disruptor<ItemEntry> disruptor = new Disruptor<ItemEntry>(ItemEntry.EVENT_FACTORY, 256,
-		Executors.newCachedThreadPool(), ClaimStrategy.Option.SINGLE_THREADED, WaitStrategy.Option.YIELDING);
+	private final Disruptor<ItemEntry> disruptor = new Disruptor<ItemEntry>(ItemEntry.EVENT_FACTORY,
+		Executors.newCachedThreadPool(), new SingleThreadedClaimStrategy(256), new YieldingWaitStrategy());
 
 	private final EventHandler<ItemEntry> h1=new EventHandler<ItemEntry>(){
 		public void onEvent(final ItemEntry entry, final long seq, final boolean eob) throws Exception {
